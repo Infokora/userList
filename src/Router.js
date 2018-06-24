@@ -19,7 +19,7 @@ export default class Routers extends Component {
             type={ActionConst.RESET}
             key="usersList"
             component={UsersList}
-            hideNavBar
+            title={'Github users'}
             initial
           />
         </Scene>

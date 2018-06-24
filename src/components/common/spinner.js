@@ -33,12 +33,4 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  backgroundSpinner: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 5,
-    borderRadius: 50,
-    backgroundColor: '#fff',
-    elevation: 5
-  }
 });

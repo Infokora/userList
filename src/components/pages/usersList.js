@@ -2,9 +2,12 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  FlatList
+  FlatList,
+  Linking,
+  StyleSheet
 } from 'react-native';
 import {connect} from "react-redux";
+import propTypes from 'prop-types';
 
 import {
   UserCard,
@@ -12,7 +15,7 @@ import {
 } from '@common';
 import {
   actionUsers
-} from '../../actions';
+} from '@actions';
 
 class UsersList extends Component {
   constructor(props) {
@@ -20,29 +23,75 @@ class UsersList extends Component {
 
     this.state = {
       loading: false,
+      error: ''
+    }
+  }
+
+  static propTypes = {
+    users: propTypes.array
+  };
+
+  static defaultProps = {
+    users: []
+  };
+
+  errorMsg(){
+    if(this.state.error){
+      return (
+        <Text style={style.error}>
+          { this.state.error }
+        </Text>
+      );
+    } else {
+      return null
     }
   }
 
   componentDidMount() {
-    this.setState({loading: true}, this.userLoading);
+    this.setState({loading: true}, this.userLoading.bind(this));
   }
 
-  static userLoading() {
+  userLoading() {
     this.props.actionUsers()
       .then(res => console.log(res))
-      .catch(error => console.warn(error))
+      .catch(error => this.setState({error: error.message}))
       .finally(() => this.setState({loading: false}));
   }
 
+  moveToBrowser(url){
+    Linking.canOpenURL(url).then(supported => {
+      if (!supported) {
+        console.log('Can\'t handle url: ' + url);
+      } else {
+        return Linking.openURL(url);
+      }
+    }).catch((err) => {
+      console.error('An error occurred', err)
+    });
+  }
+
+
   render() {
-
-
     return (
-      <View style={{}}>
+      <View style={style.main}>
         {
-          this.props.users.map((item, i) => {
-            return <UserCard key={i} login={item.login} />
-          })
+          this.state.loading ?
+            <Spinner/>
+            :
+            <FlatList
+              ListHeaderComponent={this.errorMsg.bind(this)}
+              style={style.list}
+              data={this.props.users}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({item}) => (
+                <UserCard
+                  login={item.login}
+                  avatar_url={item.avatar_url}
+                  profileMove={this.moveToBrowser.bind(this, item.html_url)}
+                  html_url={item.html_url}
+                />
+              )}
+            />
         }
       </View>
     )
@@ -59,4 +108,19 @@ export default connect(
   }, {
     actionUsers
   }
-)(UsersList)
+)(UsersList);
+
+const style = StyleSheet.create({
+  main: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  list: {
+    padding: 10,
+  },
+  error: {
+    textAlign: 'center',
+    marginVertical: 30,
+    fontSize: 22,
+  }
+});

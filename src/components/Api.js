@@ -16,9 +16,9 @@ const http = axios.create({
 });
 
 class ApiCreate {
-  public loadingUsers() {
+  loadingUsers() {
     return http.get(api.users)
-      .then(response => Promise.resolve(response))
+      .then(res => Promise.resolve(res))
       .catch(error => Promise.reject(error));
   }
 }
