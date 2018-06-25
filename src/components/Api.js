@@ -5,6 +5,7 @@ export const host = 'https://api.github.com';
 const api = {
   // USER
   users: '/users',
+  followers: '/followers',
 };
 
 const http = axios.create({
@@ -18,6 +19,12 @@ const http = axios.create({
 class ApiCreate {
   loadingUsers() {
     return http.get(api.users)
+      .then(res => Promise.resolve(res))
+      .catch(error => Promise.reject(error));
+  }
+
+  loadingFollowers(login) {
+    return http.get(`${api.users}/${login}${api.followers}`)
       .then(res => Promise.resolve(res))
       .catch(error => Promise.reject(error));
   }

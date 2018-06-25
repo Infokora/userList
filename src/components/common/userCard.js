@@ -8,9 +8,9 @@ import {
 } from 'react-native';
 import propTypes from 'prop-types';
 
-export const UserCard = ({login, avatar_url, profileMove}) => {
+export const UserCard = ({login, avatar_url, profileMove, showFollowers}) => {
   return (
-    <TouchableOpacity style={style.wrapUser}>
+    <TouchableOpacity style={style.wrapUser} onPress={showFollowers}>
       <Image style={style.avatar} source={{uri: avatar_url}}/>
 
       <View style={style.loginWrap}>
@@ -28,13 +28,15 @@ export const UserCard = ({login, avatar_url, profileMove}) => {
 UserCard.propTypes = {
   login: propTypes.string,
   avatar_url: propTypes.string,
-  profileMove: propTypes.func
+  profileMove: propTypes.func.isRequired,
+  showFollowers: propTypes.func.isRequired
 };
 
 UserCard.defaultProps = {
   login: '',
   avatar_url: '',
-  profileMove: undefined
+  profileMove: undefined,
+  showFollowers: undefined
 };
 
 const style = StyleSheet.create({

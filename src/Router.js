@@ -5,10 +5,8 @@ import {
   ActionConst
 } from 'react-native-router-flux';
 
-// import { colors } from '@constants';
-// import { title } from './components/styles/title';
-
 import UsersList from './components/pages/usersList';
+import Followers from './components/pages/followers';
 
 export default class Routers extends Component {
   render() {
@@ -21,6 +19,13 @@ export default class Routers extends Component {
             component={UsersList}
             title={'Github users'}
             initial
+          />
+
+          <Scene
+            key="followers"
+            component={Followers}
+            title={'Followers'}
+            back
           />
         </Scene>
       </Router>

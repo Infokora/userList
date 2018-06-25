@@ -1,4 +1,5 @@
 export const usersTypes = {
   LOADED: 'USER_LOADED',
+  FOLLOWERS_LOADED: 'USER_FOLLOWERS_LOADED',
   LOGOUT: 'USER_LOGOUT',
 };

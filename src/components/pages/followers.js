@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import {connect} from "react-redux";
 import propTypes from 'prop-types';
-import {Actions} from 'react-native-router-flux';
 
 import {
   UserCard,
@@ -19,7 +18,7 @@ import {
   actionFollowers
 } from '@actions';
 
-class UsersList extends Component {
+class Followers extends Component {
   constructor(props) {
     super(props);
 
@@ -49,25 +48,6 @@ class UsersList extends Component {
     }
   }
 
-  componentDidMount() {
-    this.setState({loading: true}, this.userLoading.bind(this));
-  }
-
-  userLoading() {
-    this.props.actionUsers()
-      .then(res => console.log(res))
-      .catch(error => this.setState({error: error.message}))
-      .finally(() => this.setState({loading: false}));
-  }
-
-  followersLoading(login) {
-    this.setState({loading: true});
-    this.props.actionFollowers(login)
-      .then(res => Actions.followers({title: `Followers ${login}`}))
-      .catch(error => this.setState({error: error.message}))
-      .finally(() => this.setState({loading: false}))
-  }
-
   moveToBrowser(url) {
     Linking.canOpenURL(url).then(supported => {
       if (!supported) {
@@ -80,7 +60,6 @@ class UsersList extends Component {
     });
   }
 
-
   render() {
     return (
       <View style={style.main}>
@@ -91,15 +70,15 @@ class UsersList extends Component {
             <FlatList
               ListHeaderComponent={this.errorMsg.bind(this)}
               style={style.list}
-              data={this.props.users.data}
+              data={this.props.users.followers}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({item}) => (
                 <UserCard
                   login={item.login}
                   avatar_url={item.avatar_url}
                   profileMove={this.moveToBrowser.bind(this, item.html_url)}
-                  html_url={item.html_url}
-                  showFollowers={this.followersLoading.bind(this, item.login)}
+                  showFollowers={() => {
+                  }}
                 />
               )}
             />
@@ -120,7 +99,7 @@ export default connect(
     actionUsers,
     actionFollowers
   }
-)(UsersList);
+)(Followers);
 
 const style = StyleSheet.create({
   main: {

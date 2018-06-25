@@ -7,14 +7,21 @@ import {Api} from "../components/Api";
 export const actionUsers = () => dispatch => {
   return Api.loadingUsers()
     .then(res => {
-      console.log('action', res);
       dispatch({
         type: usersTypes.LOADED,
         payload: res.data
       });
       return Promise.resolve(res);
-    }).catch(error => {
-      console.dir(error);
-      return Promise.reject(error)
-    });
+    }).catch(error => Promise.reject(error));
+};
+
+export const actionFollowers = (login) => dispatch => {
+  return Api.loadingFollowers(login)
+    .then(res => {
+      dispatch({
+        type: usersTypes.FOLLOWERS_LOADED,
+        payload: res.data
+      });
+      return Promise.resolve(res);
+    }).catch(error => Promise.reject(error));
 };
