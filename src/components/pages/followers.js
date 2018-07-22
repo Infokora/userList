@@ -11,7 +11,8 @@ import propTypes from 'prop-types';
 
 import {
   UserCard,
-  Spinner
+  Spinner,
+  ScrollList
 } from '@common';
 import {
   actionUsers,
@@ -29,12 +30,38 @@ class Followers extends Component {
   }
 
   static propTypes = {
-    users: propTypes.object
+    users: propTypes.object,
+    actionUsers: propTypes.func.isRequired,
+    actionFollowers: propTypes.func.isRequired
   };
 
   static defaultProps = {
-    users: {}
+    users: {},
+    actionUsers: () => {},
+    actionFollowers: () => {}
   };
+  
+  componentDidMount() {
+    this.setState({loading: true}, this.followersLoading.bind(this, this.props.login));
+  }
+
+  followersLoading(login, since) {
+    return this.props.actionFollowers(login, since)
+      .catch(error => this.setState({error: error.message}))
+      .finally(() => {
+        this.setState({loading: false})
+        return Promise.resolve('End');
+      });
+  }
+
+  loadingMoreFollowers() {
+    console.log('last id', this.props.users.followers[this.props.users.followers.length - 1].id);
+    const since = this.props.users.followers[this.props.users.followers.length - 1].id;
+
+    return this.props.actionFollowers(this.props.login, since)
+      .catch(error => this.setState({error: error.message}))
+      .finally(() => Promise.resolve('End'));
+  }
 
   errorMsg() {
     if (this.state.error) {
@@ -60,6 +87,18 @@ class Followers extends Component {
     });
   }
 
+  renderItem(item) {
+    return (
+      <UserCard
+        login={item.login}
+        avatar_url={item.avatar_url}
+        profileMove={this.moveToBrowser.bind(this, item.html_url)}
+        html_url={item.html_url}
+        showFollowers={() => {}}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={style.main}>
@@ -67,20 +106,12 @@ class Followers extends Component {
           this.state.loading ?
             <Spinner/>
             :
-            <FlatList
+            <ScrollList
               ListHeaderComponent={this.errorMsg.bind(this)}
-              style={style.list}
               data={this.props.users.followers}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({item}) => (
-                <UserCard
-                  login={item.login}
-                  avatar_url={item.avatar_url}
-                  profileMove={this.moveToBrowser.bind(this, item.html_url)}
-                  showFollowers={() => {
-                  }}
-                />
-              )}
+              renderItem={this.renderItem.bind(this)}
+              eventRefresh={this.followersLoading.bind(this)}
+              loadMoreItems={this.loadingMoreFollowers.bind(this)}
             />
         }
       </View>

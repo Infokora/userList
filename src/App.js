@@ -5,13 +5,14 @@ import ReduxThunk from 'redux-thunk';
 
 import Router from './Router';
 import { reducers } from './reducers/index';
+import { logger } from 'redux-logger';
 
 export default class App extends Component {
 	render() {
 		const store = createStore(
 			reducers,
 			{},
-			applyMiddleware(ReduxThunk)
+			applyMiddleware(ReduxThunk, logger)
 		);
 		return (
 			<Provider store={store}>

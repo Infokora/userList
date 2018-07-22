@@ -12,8 +12,10 @@ import {Actions} from 'react-native-router-flux';
 
 import {
   UserCard,
-  Spinner
+  Spinner,
+  ScrollList
 } from '@common';
+
 import {
   actionUsers,
   actionFollowers
@@ -25,16 +27,20 @@ class UsersList extends Component {
 
     this.state = {
       loading: false,
-      error: ''
+      error: '',
     }
   }
 
   static propTypes = {
-    users: propTypes.object
+    users: propTypes.object,
+    actionUsers: propTypes.func.isRequired,
+    actionFollowers: propTypes.func.isRequired
   };
 
   static defaultProps = {
-    users: {}
+    users: {},
+    actionUsers: () => {},
+    actionFollowers: () => {}
   };
 
   errorMsg() {
@@ -53,20 +59,35 @@ class UsersList extends Component {
     this.setState({loading: true}, this.userLoading.bind(this));
   }
 
-  userLoading() {
-    this.props.actionUsers()
+  userLoading(since) {
+    return this.props.actionUsers(since)
       .then(res => console.log(res))
       .catch(error => this.setState({error: error.message}))
-      .finally(() => this.setState({loading: false}));
+      .finally(() => {
+        this.setState({loading: false})
+        return Promise.resolve('End');
+      });
   }
 
-  followersLoading(login) {
-    this.setState({loading: true});
-    this.props.actionFollowers(login)
-      .then(res => Actions.followers({title: `Followers ${login}`}))
+  loadingMoreUsers() {
+    return this.userLoading(this.props.users.data[this.props.users.data.length - 1].id)
       .catch(error => this.setState({error: error.message}))
-      .finally(() => this.setState({loading: false}))
+      .finally(() => Promise.resolve('End'));
   }
+
+  // startFollowersLoading() {
+  //   this.setState({loading: true}, this.followersLoading.bind(this));
+  // }
+
+  // followersLoading(login) {
+  //   return this.props.actionFollowers(login)
+  //     .then(res => Actions.followers({title: `Followers ${login}`}))
+  //     .catch(error => this.setState({error: error.message}))
+  //     .finally(() => {
+  //       this.setState({loading: false})
+  //       return Promise.resolve('End');
+  //     });
+  // }
 
   moveToBrowser(url) {
     Linking.canOpenURL(url).then(supported => {
@@ -76,10 +97,21 @@ class UsersList extends Component {
         return Linking.openURL(url);
       }
     }).catch((err) => {
-      console.error('An error occurred', err)
+      console.error('An error occurred', err);
     });
   }
 
+  renderItem(item) {
+    return (
+      <UserCard
+        login={item.login}
+        avatar_url={item.avatar_url}
+        profileMove={this.moveToBrowser.bind(this, item.html_url)}
+        html_url={item.html_url}
+        showFollowers={() => Actions.followers({login: item.login})}
+      />
+    )
+  }
 
   render() {
     return (
@@ -88,20 +120,12 @@ class UsersList extends Component {
           this.state.loading ?
             <Spinner/>
             :
-            <FlatList
+            <ScrollList
               ListHeaderComponent={this.errorMsg.bind(this)}
-              style={style.list}
               data={this.props.users.data}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({item}) => (
-                <UserCard
-                  login={item.login}
-                  avatar_url={item.avatar_url}
-                  profileMove={this.moveToBrowser.bind(this, item.html_url)}
-                  html_url={item.html_url}
-                  showFollowers={this.followersLoading.bind(this, item.login)}
-                />
-              )}
+              renderItem={this.renderItem.bind(this)}
+              eventRefresh={this.userLoading.bind(this)}
+              loadMoreItems={this.loadingMoreUsers.bind(this)}
             />
         }
       </View>

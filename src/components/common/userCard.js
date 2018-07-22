@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PureComponent} from 'react';
 import {
   View,
   Image,
@@ -8,36 +8,40 @@ import {
 } from 'react-native';
 import propTypes from 'prop-types';
 
-export const UserCard = ({login, avatar_url, profileMove, showFollowers}) => {
-  return (
-    <TouchableOpacity style={style.wrapUser} onPress={showFollowers}>
-      <Image style={style.avatar} source={{uri: avatar_url}}/>
+export class UserCard extends PureComponent {
+  static propTypes = {
+    login: propTypes.string,
+    avatar_url: propTypes.string,
+    profileMove: propTypes.func.isRequired,
+    showFollowers: propTypes.func.isRequired
+  };
+  
+  static defaultProps = {
+    login: '',
+    avatar_url: '',
+    profileMove: undefined,
+    showFollowers: undefined
+  };
 
-      <View style={style.loginWrap}>
-        <TouchableOpacity onPress={profileMove} style={style.loginBtn}>
-          <Text style={style.login}>
-            {login}
-          </Text>
-        </TouchableOpacity>
-      </View>
+  render() {
+    const {login, avatar_url, profileMove, showFollowers, i} = this.props;
 
-    </TouchableOpacity>
-  )
-};
-
-UserCard.propTypes = {
-  login: propTypes.string,
-  avatar_url: propTypes.string,
-  profileMove: propTypes.func.isRequired,
-  showFollowers: propTypes.func.isRequired
-};
-
-UserCard.defaultProps = {
-  login: '',
-  avatar_url: '',
-  profileMove: undefined,
-  showFollowers: undefined
-};
+    return (
+      <TouchableOpacity style={style.wrapUser} onPress={showFollowers}>
+        <Image style={style.avatar} source={{uri: avatar_url}}/>
+  
+        <View style={style.loginWrap}>
+          <TouchableOpacity onPress={profileMove} style={style.loginBtn}>
+            <Text style={style.login}>
+              {login}
+            </Text>
+          </TouchableOpacity>
+        </View>
+  
+      </TouchableOpacity>
+    )
+  }
+}
 
 const style = StyleSheet.create({
   wrapUser: {
